@@ -1,0 +1,14 @@
+
+
+
+
+
+.build/mega2560/src/arduino_antrobots_2.0.cpp : src/arduino_antrobots_2.0.ino
+	@mkdir -p .build/mega2560/src
+	@echo [93msrc/arduino_antrobots_2.0.ino[0m
+	@/usr/local/bin/ino preproc  -o $@ $^
+
+
+all : .build/mega2560/src/arduino_antrobots_2.0.cpp
+	@true
+

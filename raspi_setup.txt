@@ -1,0 +1,150 @@
+/******************************************************
+ * @about	Quick set up guide for a new raspberry pi
+ * @author	Mustafa Mukadam
+ * @date	05-13-2015
+ *****************************************************/
+
+1. Erase and remove all partitions on SD card.
+
+2. Download NOOBS from raspi website, unzip and copy contents on SD card.
+
+3. Plug in SD card and turn on raspi. Follow instructions to install Raspbian linux OS.
+
+4. ID: pi, PASSWORD: raspberry. To go into GUI: $ startx
+
+5. Plug in wifi module. On GTwifi use following settings:
+	SSID: GTwifi
+	Authentication: WAP2-Enterprise (EAP)
+	Encryption: CCMP
+	EAP method: PEAP
+	Identity: user id
+	Password: password
+	Inner auth: EAP-MSCHAPV2
+
+5. Update after internet connection ready.
+	$ sudo apt-get update
+	$ sudo apt-get upgrade
+
+6. Raspi setting enable ssh, i2c, spi, serial
+	$ sudo raspi-config
+
+7. Get preferred text editor for coding.
+	$ sudo apt-get install (geany,vim,emacs)
+
+8. Get C/C++ library to access GPIO.
+	bcm2835 (gives access to registers timers, etc):
+	http://www.raspberry-projects.com/pi/programming-in-c/c-libraries/bcm2835-by-mike-mccauley
+	wiringPi (more high level, arduino like): http://wiringpi.com
+
+	Python library for GPIO also available. Default installed RPi.GPIO. WiringPi2-Python better.
+
+	More info on GPIO stuff: http://elinux.org/RPi_Low-level_peripherals
+
+9. Connect to lab’s robot server
+	(SSID:taco truck, no password)
+	This network is hidden. Follow steps here to connect to hidden network: http://www.thehecklers.org/2015/02/27/how-to-connect-raspberry-pi-to-hidden-ssid/
+	Set up this as a static ip: http://raspberrypi.stackexchange.com/questions/11631/wifi-setup-for-multiple-networks
+	$ sudo vim /etc/wpa_supplicant/wpa_supplicant.conf
+	$ sudo vim /etc/network/interfaces
+	College server for internet should be changed to priority=2 and disabled=1
+	Crablab server should be priority=1 and disabled=0
+	Switch settings when internet needed.
+
+10. $ ssh 192.168.0.XXX, in putty (install putty if not installed) to access raspi on main computer. (XXX - raspi’s assigned ip address)
+	To fix slow ssh connections: http://injustfiveminutes.com/2013/03/13/fixing-ssh-login-long-delay/
+
+11. Have fun coding! Turn off safely when done.
+	$ sudo shutdown -h now // or sudo halt
+	$ sudo reboot	// to reboot
+
+12. Download current version of antrobots_2.0 source code, complie and run
+	$ git clone https://mhmukadam@bitbucket.org/mhmukadam/antrobots_2.0.git
+	$ cd antrobots_2.0/
+	$ mkdir build
+	$ make
+	$ sudo ./run
+
+/******************************************************
+ * Optional set up and other commands
+ *****************************************************/
+1. Install git bash on local machine. Git bash provides linux like commands to copy files from the windows local machine to rapis.
+	From local machine to raspi
+	$ scp /local/path/to/file.blah pi@192.168.0.XXX:~/path/to/file.blah
+	From raspi to loacl machine
+	$ scp pi@192.168.0.XXX:~/path/to/file.blah ~/path/to/file.blah
+	More info and syntax: https://www.garron.me/en/articles/scp.html
+	If warning: remote host identification has changed, do this: http://www.cyberciti.biz/faq/warning-remote-host-identification-has-changed-error-and-solution/
+	
+2. $ free 			// check memory available
+
+3. $ df /			// disk space
+
+4. $ hostname -I	// check ip address
+
+5. $ ifconfig		// check ethernet and wlan connections
+
+6. $ lsusb			// check usb devices connected
+
+7. Vim set up.
+	Auto indent and color, put this in ~/.vimrc
+	syntax on
+	set tabstop=2
+	set shiftwidth=2
+	set smarttab
+	set cindent
+	
+	For auto brackets completion, download vim plugin from: http://www.vim.org/scripts/script.php?script_id=1849
+	put autoclose.vim in ~/.vim/plugin/
+	
+8. Communication via USB to serial TTL cable
+	Red		- Vcc (Pin 4) Caution: Do not power with this wire if micro usb connected
+	Black	- GND (Pin 6)
+	White	- TX  (Pin 8)
+	Green	- RX  (Pin 10)
+	Baud rate:		115200
+	Bits: 			8
+	Parity: 		None
+	Stop Bits: 		1
+	Flow Control: 	None
+	Remember to press enter after putty session begins.
+	https://learn.adafruit.com/downloads/pdf/adafruits-raspberry-pi-lesson-5-using-a-console-cable.pdf
+	
+9. 	Arduino from raspi
+	$ sudo apt-get install arduino
+	$ sudo apt-get install python-dev
+	$ sudo apt-get install python-setuptools
+	$ git clone git://github.com/amperka/ino.git
+	$ cd ino
+	$ sudo make install
+	$ sudo python setup.py install
+	$ mkdir new_project
+	$ cd new_project
+	$ ino init -t blink // To make new arduino project
+
+	// Create ino.ini for default settings
+	[build]
+	board-model = mega2560
+
+	[upload]
+	board-model = mega2560
+	serial-port = /dev/ttyACM0
+
+	[serial]
+	serial-port = /dev/ttyACM0
+
+	$ ino build
+	$ ino upload
+
+/******************************************************
+ * Robot specs
+ *****************************************************/
+ Processor: Raspberry Pi 2.0 B, Arduino Mega 2560 via usb to raspi
+ Encoders: AS5145H (breakout from madscientisthut.com) via SPI to raspi
+ Camera: Pixy via usb to raspi
+ Magnetometer: HMC6343 via I2C to arduino
+ Gyro: LPY503AL
+ 5V step up regulator: U3V12F5
+ Motor Driver: DRV8835
+ Motors: Pololu 120:1 Plastic Gearmotor, Offset Output
+ Wheels: Pololu Solarbotics GMPW-B Black Wheel
+ Battery: ThruNite 3400mAh Li-ion 3.7V cell (Amazon)
